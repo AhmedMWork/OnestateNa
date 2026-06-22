@@ -2,6 +2,32 @@
 
 منصة عربية كاملة للتقديم على إدارة OneState RP وقادة الفصائل، مع لوحة أدمن، تقييم تلقائي، كشف تكرار، وإدارة أسئلة وقوانين.
 
+
+## ثبات Build على Vercel
+
+تم حل مشكلتين منفصلتين:
+
+1. خطأ npm `Exit handler never called` عبر التحويل إلى pnpm على Vercel.
+2. تعليق Next.js عند `Collecting page data` عبر ضبط `experimental.cpus = 1` وجعل API Routes ديناميكية.
+
+علامة نجاح النسخة الصحيحة في Vercel log:
+
+```txt
+Running "install" command: `corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm install --no-frozen-lockfile`
+```
+
+لو ظهر `npm install` مرة أخرى، فهذا يعني أن Vercel يستخدم إعداد Install Command قديم من Dashboard أو أن GitHub لم يستقبل هذه النسخة.
+
+
+## حل Vercel النهائي المعتمد
+
+هذه النسخة تستخدم pnpm بدل npm على Vercel لتجاوز خطأ npm: `Exit handler never called`.
+
+علامة أن النسخة الصحيحة تعمل: يجب أن يظهر في Vercel log أمر `pnpm install` وليس `npm install`.
+
+راجع: `docs/VERCEL_FINAL_PNPM_FIX.md`.
+
+
 ## المميزات المنفذة
 
 - واجهة عربية RTL بالكامل بتصميم Gaming Dark / Gold / Silver.

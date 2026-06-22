@@ -64,3 +64,11 @@
 - Removed eslint and eslint-config-next from deployment dependencies to eliminate transitive glob deprecated warnings.
 - Verified clean install without glob deprecated warnings.
 - Verified typecheck and production build.
+
+## Final Vercel Stability Fix
+
+- Switched Vercel install from npm to pnpm via Corepack.
+- Removed package-lock.json and .npmrc from the deliverable.
+- Added `experimental.cpus = 1` to Next config to prevent build worker explosion during `Collecting page data`.
+- Added `dynamic = force-dynamic` and `runtime = nodejs` to all API route handlers.
+- Verified local production build after these changes.

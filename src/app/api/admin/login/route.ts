@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminResponse, verifyPassword } from '@/lib/admin-auth';
 import { getClientIp, tooManyAdminAttempts } from '@/lib/request-guards';

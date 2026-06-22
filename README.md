@@ -67,3 +67,20 @@ npm run dev
 - `docs/OneState_RP_Rules.xlsx`
 
 هذه الملفات محفوظة داخل المشروع كمرجع للإدارة ويمكن حذفها من النسخة العامة إذا رغبت الشركة.
+
+
+## Vercel Final Fix
+
+هذه النسخة لا تستخدم `npm ci` ولا تحتوي على `package-lock.json` لتجنب خطأ npm على Vercel.
+
+إعدادات Vercel المطلوبة:
+
+- Root Directory: `.`
+- Framework: Next.js
+- Install Command: من `vercel.json`
+- Build Command: من `vercel.json`
+- Node.js Version: استخدم إعدادات Vercel Project Settings، ولا يوجد `engines` داخل `package.json`.
+
+لو رفعت المشروع داخل مجلد اسمه `Onestaterp` داخل GitHub، اجعل Root Directory في Vercel = `Onestaterp`. الأفضل أن يكون `package.json` في جذر الريبو مباشرة.
+
+راجع: `docs/VERCEL_FINAL_FIX.md`.

@@ -94,3 +94,8 @@
 8. مقارنة تشابه الإجابات النصية بين الطلبات بنسبة مئوية.
 9. صفحة Public Status أكثر تفصيلًا للمتقدم.
 10. سجل تدقيق أوسع لكل تعديل في الأسئلة والقوانين والإعدادات.
+
+## Final Vercel/NPM Clean Install Upgrade
+- Removed deployment-time ESLint dependency chain that caused deprecated glob warnings.
+- Kept TypeScript checking as the primary static validation gate.
+- Build validated successfully after the dependency cleanup.

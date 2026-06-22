@@ -59,3 +59,8 @@
 تم تحديث `package.json` من `node: >=20.0.0` إلى `node: 20.x` لمنع تحذير Vercel الخاص بالترقية التلقائية لإصدارات Node الرئيسية الجديدة.
 
 تم أيضًا إزالة `outputFileTracing: false` من `next.config.mjs` لتجنب تحذير Next.js المستقبلي.
+
+## Final NPM Warning Fix
+- Removed eslint and eslint-config-next from deployment dependencies to eliminate transitive glob deprecated warnings.
+- Verified clean install without glob deprecated warnings.
+- Verified typecheck and production build.

@@ -1,83 +1,61 @@
-# Onestaterp V2 Enterprise - Implementation Report
+# تقرير التنفيذ النهائي
 
-## الحالة النهائية
+تم تنفيذ نسخة كاملة قابلة للتشغيل من بوابة التقديم الخاصة بـ OneState RP باستخدام:
 
-تم تنفيذ نسخة V2 Enterprise كاملة باسم `Onestaterp`، وتجهيزها لتكون مناسبة للرفع على GitHub + Vercel + Supabase.
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- Supabase PostgreSQL
+- Vercel-ready structure
 
 ## ما تم تنفيذه
 
-### الواجهة العامة
+1. واجهة عربية RTL كاملة.
+2. صفحة Loading أولية.
+3. صفحة رئيسية بطابع Gaming / OneState.
+4. مسار تقديم على الإدارة.
+5. مسار تقديم على قائد فصيل.
+6. اختيار الفصيل: الشرطة / الجيش / الطبي.
+7. نموذج متعدد المراحل.
+8. صور توضيحية لـ Client ID وDiscord داخل النموذج.
+9. صفحة متابعة الطلب بدون تسجيل دخول.
+10. صفحة قوانين قابلة للبحث.
+11. لوحة أدمن محمية بكلمة مرور.
+12. Dashboard للطلبات والإحصائيات.
+13. إدارة الطلبات وتغيير الحالة وإضافة الملاحظات.
+14. إدارة الأسئلة: إضافة / تعديل / حذف / تعطيل.
+15. إدارة القوانين.
+16. إدارة الإعدادات وفتح/غلق التقديم.
+17. إدارة القائمة السوداء.
+18. تقييم تلقائي للإجابات.
+19. كشف تكرار للمتقدمين.
+20. تصدير CSV.
+21. Supabase schema + seed.
+22. تحسينات أمان: rate limit للأدمن والتقديم، وتعطيل كلمات المرور الافتراضية في الإنتاج.
 
-- صفحة رئيسية Gaming/Cinematic بتصميم Dark/Gold/Silver.
-- Loading screen احترافي.
-- أنيميشن باستخدام Framer Motion.
-- أيقونات حقيقية باستخدام Lucide React بدل الإيموجي.
-- صفحات: الرئيسية، التقديم، القوانين، متابعة الطلب، FAQ، الخصوصية، الشروط.
+## نتيجة الاختبار
 
-### التقديم
+- npm run typecheck: Passed
+- npm run build: Passed
 
-- اختيار التقديم على الإدارة أو قائد فصيل.
-- اختيار الفصيل عند التقديم على قائد فصيل.
-- نموذج متعدد المراحل.
-- أسئلة ديناميكية من Supabase.
-- صور توضيح Client ID وDiscord داخل النموذج.
-- حفظ مسودة مؤقتة في المتصفح.
-- إرسال الطلب بدون تسجيل دخول.
-- صفحة نجاح برقم الطلب.
-- متابعة الطلب برقم الطلب + Client ID أو Discord أو RP Name.
+## ملفات مهمة
 
-### لوحة الأدمن
+- `README.md`: خطوات التشغيل.
+- `supabase/schema.sql`: إنشاء الجداول.
+- `supabase/seed.sql`: إدخال الفصائل والأسئلة والقوانين.
+- `.env.example`: مثال متغيرات البيئة.
+- `QUALITY_REVIEW_AND_UPGRADES.md`: مراجعة الجودة والتحسينات المضافة.
 
-- دخول بباسورد فقط.
-- Dashboard إحصائي.
-- إدارة الطلبات مع بحث وفلاتر.
-- صفحة مراجعة تفصيلية لكل طلب.
-- تغيير الحالة والأولوية والتقييم النوعي.
-- إضافة ملاحظات داخلية وسبب القرار.
-- إدارة الأسئلة بالكامل.
-- إدارة القوانين بالكامل.
-- إدارة إعدادات الموقع والفصائل.
-- Blacklist.
-- Audit Log.
-- Export CSV.
+## قبل النشر
 
-### المنطق الإداري
+1. شغّل `schema.sql` داخل Supabase.
+2. شغّل `seed.sql` داخل Supabase.
+3. أضف Environment Variables في Vercel.
+4. غيّر Supabase Secret Key الذي تم إرساله داخل المحادثة بعمل Rotate / Regenerate.
+5. اختبر `/admin` و`/apply` و`/track` بعد النشر.
 
-- تم حذف نظام النقاط بالكامل.
-- الاعتماد على حالات مراجعة وFlags وتقييم نوعي.
-- كشف تكرار عبر Client ID وDiscord وRP Name وDevice Hash.
-- Blacklist حسب Client ID أو Discord أو RP Name أو IP Hash أو Device Hash.
-- لا يوجد Discord webhook أو أي ربط خارجي.
+## Vercel Node Fix
 
-### Supabase
+تم تحديث `package.json` من `node: >=20.0.0` إلى `node: 20.x` لمنع تحذير Vercel الخاص بالترقية التلقائية لإصدارات Node الرئيسية الجديدة.
 
-- migrations منظمة.
-- seed شامل للفصائل والأسئلة والقوانين.
-- indexes للأداء.
-- RLS مفعل، والكتابة تتم من server-side عبر service role.
-
-### Vercel/GitHub
-
-- `vercel.json` موجود.
-- `.nvmrc` موجود.
-- `.gitignore` يحمي الأسرار.
-- `.env.example` بدون secrets حقيقية.
-- package-lock موجود.
-
-## الاختبارات
-
-تم تنفيذ:
-
-```bash
-npm ci
-npm run typecheck
-npm run build
-```
-
-النتيجة: Passed.
-
-## ملاحظات مهمة
-
-- لا ترفع `SUPABASE_SERVICE_ROLE_KEY` إلى GitHub.
-- بما أن المفتاح السري تم إرساله في المحادثة سابقًا، يفضّل تدويره من Supabase بعد النشر.
-- ضع المفاتيح في Vercel Environment Variables فقط.
+تم أيضًا إزالة `outputFileTracing: false` من `next.config.mjs` لتجنب تحذير Next.js المستقبلي.

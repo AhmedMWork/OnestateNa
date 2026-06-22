@@ -22,7 +22,7 @@
 1. Import Project من GitHub.
 2. Framework: Next.js.
 3. Install Command: `npm ci`.
-4. Build Command: `npm run build`.
+4. Build Command: `NEXT_PRIVATE_BUILD_WORKER=1 npm run build`.
 5. Environment Variables:
    - SUPABASE_URL
    - SUPABASE_SERVICE_ROLE_KEY

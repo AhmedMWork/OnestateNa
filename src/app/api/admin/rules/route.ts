@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getSupabaseAdmin } from '@/lib/supabase';
-
+export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const blocked = requireAdmin(req); if (blocked) return blocked;
   const supabase = getSupabaseAdmin();
@@ -9,15 +9,11 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, rules: data || [] });
 }
-
 export async function POST(req: NextRequest) {
   const blocked = requireAdmin(req); if (blocked) return blocked;
-  const body = await req.json();
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase.from('rules').insert({
-    category: body.category || 'عام', code: body.code || null, title: body.title, body: body.body || '', penalty: body.penalty || null, severity: body.severity || 'MEDIUM', tags: body.tags || [], order_index: body.order_index || 999
-  }).select('*').single();
+  const body = await req.json(); const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from('rules').insert({ category: body.category || 'عام', code: body.code || null, title: body.title, body: body.body || '', penalty: body.penalty || null, severity: body.severity || 'MEDIUM', faction_slug: body.faction_slug || null, tags: body.tags || [], order_index: body.order_index || 999, is_active: body.is_active ?? true }).select('*').single();
   if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 400 });
-  await supabase.from('audit_logs').insert({ action: 'RULE_CREATED', entity_type: 'rule', entity_id: data.id, metadata: data });
+  await supabase.from('admin_audit_logs').insert({ action: 'RULE_CREATED', entity_type: 'rule', entity_id: data.id, metadata: data });
   return NextResponse.json({ ok: true, rule: data });
 }

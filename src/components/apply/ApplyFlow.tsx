@@ -1,115 +1,74 @@
 "use client";
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
-import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, Shield, UserCog, Users } from 'lucide-react';
-import { APPLICATION_TYPE_LABELS } from '@/lib/constants';
-import type { Faction, PublicQuestion, QuestionOption } from '@/lib/types';
+import { motion } from 'framer-motion';
+import { BadgeCheck, ChevronLeft, ChevronRight, ClipboardCheck, Crown, FileText, ImageIcon, Loader2, Send, Shield, Stethoscope, UserCheck } from 'lucide-react';
+import { Navbar } from '@/components/shared/Navbar';
+import { Footer } from '@/components/shared/Footer';
+import { APPLICATION_TYPE_LABELS, FORM_SECTIONS } from '@/lib/constants';
+import type { ApplicationType, Faction, Question } from '@/lib/types';
 
-type Step = { name: string; questions: PublicQuestion[] };
+type Step = 'TYPE' | 'FACTION' | 'FORM' | 'SUCCESS';
 
-async function fingerprint() {
-  const raw = [navigator.userAgent, navigator.language, screen.width, screen.height, screen.colorDepth, Intl.DateTimeFormat().resolvedOptions().timeZone].join('|');
-  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
-  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+function deviceId() {
+  if (typeof window === 'undefined') return '';
+  const key = 'onestaterp_device_id';
+  let id = localStorage.getItem(key);
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem(key, id); }
+  return id;
 }
 
-function GuideImage({ type }: { type: 'client' | 'discord' }) {
-  return (
-    <div className="mt-3 rounded-2xl border border-onestateGold/20 bg-black/40 p-3">
-      <div className="mb-2 text-xs font-bold text-onestateGold">{type === 'client' ? 'توضيح مكان Client ID' : 'توضيح اسم Discord المطلوب'}</div>
-      <div className="relative aspect-[16/7] overflow-hidden rounded-xl border border-white/10">
-        <Image src={type === 'client' ? '/images/client-id-guide.jpg' : '/images/discord-guide.jpg'} alt={type === 'client' ? 'Client ID Guide' : 'Discord Guide'} fill className="object-cover" />
-      </div>
-    </div>
-  );
+function GuideImage({ src, title }: { src: string; title: string }) {
+  return <div className="mt-3 overflow-hidden rounded-2xl border border-onestateGold/25 bg-black/30"><div className="flex items-center gap-2 border-b border-white/10 px-4 py-2 text-sm font-bold text-onestateGoldSoft"><ImageIcon className="h-4 w-4" /> {title}</div><img src={src} alt={title} className="w-full" /></div>;
 }
 
-function Field({ q, value, onChange }: { q: PublicQuestion; value: unknown; onChange: (v: unknown) => void }) {
-  const common = { id: q.id, required: q.required };
-  const options = (q.options || []) as QuestionOption[];
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/[.04] p-5">
-      <label htmlFor={q.id} className="label text-base">{q.title}{q.required && <span className="text-onestateGold"> *</span>}</label>
-      {q.description && <p className="mb-3 text-sm leading-7 text-zinc-400">{q.description}</p>}
-      {q.question_key === 'client_id' && <GuideImage type="client" />}
-      {q.question_key === 'discord_username' && <GuideImage type="discord" />}
-      <div className={q.question_key === 'client_id' || q.question_key === 'discord_username' ? 'mt-4' : ''}>
-        {q.input_type === 'TEXTAREA' && <textarea {...common} className="field min-h-32" value={String(value || '')} onChange={(e) => onChange(e.target.value)} />}
-        {q.input_type === 'TEXT' && <input {...common} className="field" value={String(value || '')} onChange={(e) => onChange(e.target.value)} />}
-        {q.input_type === 'NUMBER' && <input {...common} type="number" className="field" value={String(value || '')} onChange={(e) => onChange(e.target.value)} />}
-        {q.input_type === 'SELECT' && <select {...common} className="field" value={String(value || '')} onChange={(e) => onChange(e.target.value)}><option value="">اختر...</option>{options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>}
-        {q.input_type === 'RADIO' && <div className="grid gap-2 sm:grid-cols-2">{options.map((o) => <label key={o.value} className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-black/30 p-3"><input type="radio" checked={value === o.value} onChange={() => onChange(o.value)} /> <span>{o.label}</span></label>)}</div>}
-        {q.input_type === 'MULTISELECT' && <div className="grid gap-2 sm:grid-cols-2">{options.map((o) => { const arr = Array.isArray(value) ? value as string[] : []; return <label key={o.value} className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-black/30 p-3"><input type="checkbox" checked={arr.includes(o.value)} onChange={(e) => onChange(e.target.checked ? [...arr, o.value] : arr.filter((x) => x !== o.value))} /> <span>{o.label}</span></label>; })}</div>}
-        {(q.input_type === 'CHECKBOX' || q.input_type === 'CONSENT') && <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-onestateGold/20 bg-onestateGold/10 p-4"><input type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="mt-1" /> <span className="leading-7">أوافق على ذلك</span></label>}
-        {q.input_type === 'SCALE' && <input {...common} type="range" min={1} max={10} value={Number(value || 5)} onChange={(e) => onChange(e.target.value)} className="w-full" />}
-      </div>
-    </div>
-  );
+function RenderQuestion({ q, value, onChange }: { q: Question; value: any; onChange: (value: any) => void }) {
+  const common = { value: value ?? '', onChange: (e: any) => onChange(e.target.value) };
+  return <div className="rounded-3xl border border-white/10 bg-black/25 p-5"><label className="label text-base">{q.title}{q.required && <span className="text-onestateGold"> *</span>}</label>{q.description && <p className="mb-3 text-sm leading-7 text-zinc-400">{q.description}</p>}{q.input_type === 'TEXTAREA' ? <textarea className="field min-h-32" {...common} /> : q.input_type === 'NUMBER' ? <input type="number" className="field" {...common} /> : q.input_type === 'SELECT' || q.input_type === 'RADIO' ? <select className="field" value={value ?? ''} onChange={(e) => onChange(e.target.value)}><option value="">اختر</option>{q.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select> : q.input_type === 'MULTISELECT' || q.input_type === 'CHECKBOX' ? <div className="grid gap-2 md:grid-cols-2">{q.options?.map(opt => <label key={opt.value} className="rounded-2xl border border-white/10 bg-white/[.04] p-3 text-sm"><input className="ms-2" type="checkbox" checked={Array.isArray(value) && value.includes(opt.value)} onChange={(e) => { const arr = Array.isArray(value) ? value : []; onChange(e.target.checked ? [...arr, opt.value] : arr.filter((x: string) => x !== opt.value)); }} />{opt.label}</label>)}</div> : q.input_type === 'CONSENT' ? <label className="flex items-start gap-3 rounded-2xl border border-onestateGold/20 bg-onestateGold/10 p-4 text-sm leading-7 text-zinc-200"><input type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="mt-1" /> <span>{q.description || q.title}</span></label> : <input className="field" {...common} />}{q.helper_image === 'client-id' && <GuideImage src="/images/client-id-guide.jpg" title="توضيح مكان Client ID" />}{q.helper_image === 'discord' && <GuideImage src="/images/discord-guide.jpg" title="توضيح مكان Discord Username" />}</div>;
 }
 
 export function ApplyFlow() {
-  const [type, setType] = useState<'ADMIN' | 'FACTION_LEADER' | ''>('');
+  const [step, setStep] = useState<Step>('TYPE');
+  const [applicationType, setApplicationType] = useState<ApplicationType>('ADMIN');
+  const [factionSlug, setFactionSlug] = useState<string | null>(null);
   const [factions, setFactions] = useState<Faction[]>([]);
-  const [faction, setFaction] = useState('');
-  const [questions, setQuestions] = useState<PublicQuestion[]>([]);
-  const [answers, setAnswers] = useState<Record<string, unknown>>({});
-  const [stepIndex, setStepIndex] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [sectionIndex, setSectionIndex] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ applicationNo: string; status: string; score: number } | null>(null);
+  const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
 
-  useEffect(() => { fetch('/api/public/factions').then(r => r.json()).then(d => setFactions(d.factions || [])); }, []);
+  useEffect(() => { fetch('/api/public/factions').then(r => r.json()).then(d => setFactions(d.factions || [])).catch(() => setFactions([])); }, []);
   useEffect(() => {
-    if (!type) return;
-    if (type === 'FACTION_LEADER' && !faction) return;
-    setLoading(true); setError('');
-    fetch(`/api/public/questions?type=${type}${faction ? `&faction=${faction}` : ''}`)
-      .then(r => r.json()).then(d => setQuestions(d.questions || [])).catch(() => setError('تعذر تحميل الأسئلة'))
-      .finally(() => setLoading(false));
-  }, [type, faction]);
+    const params = new URLSearchParams(); params.set('type', applicationType); if (factionSlug) params.set('faction', factionSlug);
+    fetch(`/api/public/questions?${params}`).then(r => r.json()).then(d => setQuestions(d.questions || [])).catch(() => setQuestions([]));
+  }, [applicationType, factionSlug]);
 
-  const steps: Step[] = useMemo(() => {
-    const map = new Map<string, PublicQuestion[]>();
-    for (const q of questions) { if (!map.has(q.section)) map.set(q.section, []); map.get(q.section)!.push(q); }
-    return Array.from(map.entries()).map(([name, qs]) => ({ name, questions: qs }));
-  }, [questions]);
+  useEffect(() => {
+    const saved = localStorage.getItem('onestaterp_apply_draft');
+    if (saved) { try { const parsed = JSON.parse(saved); setAnswers(parsed.answers || {}); } catch {} }
+  }, []);
+  useEffect(() => { localStorage.setItem('onestaterp_apply_draft', JSON.stringify({ answers, applicationType, factionSlug })); }, [answers, applicationType, factionSlug]);
 
+  const sections = useMemo(() => FORM_SECTIONS.filter(s => questions.some(q => q.section === s)), [questions]);
+  const activeSection = sections[sectionIndex] || sections[0] || 'البيانات الأساسية';
+  const activeQuestions = questions.filter(q => q.section === activeSection);
+
+  function selectType(type: ApplicationType) { setApplicationType(type); setFactionSlug(null); setSectionIndex(0); setStep(type === 'FACTION_LEADER' ? 'FACTION' : 'FORM'); }
+  function canGoNext() {
+    return activeQuestions.every(q => !q.required || (answers[q.question_key] !== undefined && answers[q.question_key] !== '' && answers[q.question_key] !== false));
+  }
   async function submit() {
     setLoading(true); setError('');
-    try {
-      const deviceHash = await fingerprint().catch(() => null);
-      const res = await fetch('/api/applications', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ applicationType: type, factionSlug: faction || null, answers, deviceHash, screen: `${screen.width}x${screen.height}`, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }) });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.message);
-      setResult({ applicationNo: data.applicationNo, status: data.status, score: data.score });
-      window.localStorage.removeItem('onestate-application-draft');
-    } catch (e: any) { setError(e.message || 'حدث خطأ'); }
-    finally { setLoading(false); }
+    const res = await fetch('/api/applications', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ applicationType, factionSlug, answers, deviceHash: deviceId(), screen: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : '', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, website: '' }) });
+    const data = await res.json(); setLoading(false);
+    if (!data.ok) { setError(data.message || 'حدث خطأ أثناء إرسال الطلب'); return; }
+    localStorage.removeItem('onestaterp_apply_draft'); setResult(data); setStep('SUCCESS');
   }
 
-  if (result) return <section className="container-page py-16"><div className="glass-panel mx-auto max-w-2xl rounded-[2rem] p-8 text-center"><CheckCircle2 className="mx-auto h-20 w-20 text-emerald-400" /><h1 className="mt-5 text-3xl font-black">تم إرسال الطلب بنجاح</h1><p className="mt-3 text-zinc-300">احتفظ برقم الطلب لمتابعة الحالة.</p><div className="mx-auto mt-6 rounded-2xl border border-onestateGold/30 bg-onestateGold/10 p-5 text-3xl font-black text-onestateGold">{result.applicationNo}</div><p className="mt-4 text-sm text-zinc-400">النتيجة المبدئية: {result.score}% — الحالة: {result.status}</p></div></section>;
-
-  return (
-    <section className="container-page py-12">
-      <div className="mb-8"><h1 className="text-4xl font-black">بوابة التقديم</h1><p className="mt-3 text-zinc-400">اختر نوع التقديم ثم أكمل النموذج. لا يحتاج المتقدم إلى تسجيل دخول.</p></div>
-      {!type && <div className="grid gap-5 md:grid-cols-2">
-        <button onClick={() => setType('ADMIN')} className="glass-panel group rounded-[2rem] p-8 text-right transition hover:border-onestateGold/40"><UserCog className="mb-5 h-14 w-14 text-onestateGold" /><h2 className="text-3xl font-black">التقديم على الإدارة</h2><p className="mt-3 leading-8 text-zinc-400">اختبار معرفة بالقوانين وسيناريوهات إدارة ومتابعة اللاعبين.</p></button>
-        <button onClick={() => setType('FACTION_LEADER')} className="glass-panel group rounded-[2rem] p-8 text-right transition hover:border-onestateGold/40"><Shield className="mb-5 h-14 w-14 text-onestateGold" /><h2 className="text-3xl font-black">التقديم على قائد فصيل</h2><p className="mt-3 leading-8 text-zinc-400">اختر الشرطة أو الجيش أو التحالف الطبي ثم أجب على أسئلة القيادة.</p></button>
-      </div>}
-
-      {type === 'FACTION_LEADER' && !faction && <div className="grid gap-4 md:grid-cols-3">{factions.map((f) => <button key={f.slug} onClick={() => setFaction(f.slug)} className="glass-panel rounded-[2rem] p-6 text-right hover:border-onestateGold/40"><h3 className="text-2xl font-black text-onestateGold">{f.name_ar}</h3><p className="mt-3 leading-7 text-zinc-400">{f.description_ar}</p><div className="mt-4 pill inline-flex">الحد الأدنى: {f.min_hours || 4} ساعات</div></button>)}</div>}
-
-      {loading && <div className="mt-10 flex items-center gap-3 text-zinc-300"><Loader2 className="h-5 w-5 animate-spin" /> جاري التحميل...</div>}
-      {error && <div className="mt-6 rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-red-200">{error}</div>}
-
-      {type && (type === 'ADMIN' || faction) && steps.length > 0 && <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-        <aside className="glass-panel h-fit rounded-[2rem] p-5"><button onClick={() => { setType(''); setFaction(''); setQuestions([]); setStepIndex(0); }} className="mb-5 text-sm text-zinc-400 hover:text-white">تغيير نوع التقديم</button><h3 className="font-black text-onestateGold">{APPLICATION_TYPE_LABELS[type]}</h3><div className="mt-5 space-y-2">{steps.map((s, i) => <button key={s.name} onClick={() => setStepIndex(i)} className={`w-full rounded-2xl p-3 text-right text-sm font-bold ${i === stepIndex ? 'bg-onestateGold text-black' : 'bg-white/10 text-zinc-300'}`}>{i + 1}. {s.name}</button>)}</div></aside>
-        <div>
-          <div className="mb-5 flex items-center justify-between"><h2 className="text-2xl font-black">{steps[stepIndex]?.name}</h2><span className="pill">{stepIndex + 1} / {steps.length}</span></div>
-          <div className="space-y-4">{steps[stepIndex]?.questions.map((q) => <Field key={q.id} q={q} value={answers[q.id]} onChange={(v) => setAnswers((a) => ({ ...a, [q.id]: v }))} />)}</div>
-          <div className="mt-6 flex justify-between gap-3"><button className="btn-dark gap-2" disabled={stepIndex === 0} onClick={() => setStepIndex((i) => Math.max(0, i - 1))}><ChevronRight className="h-4 w-4" /> السابق</button>{stepIndex < steps.length - 1 ? <button className="btn-gold gap-2" onClick={() => setStepIndex((i) => i + 1)}>التالي <ChevronLeft className="h-4 w-4" /></button> : <button disabled={loading} onClick={submit} className="btn-gold">إرسال الطلب</button>}</div>
-        </div>
-      </div>}
-    </section>
-  );
+  return <><Navbar /><main className="container-page min-h-screen py-28"><div className="mb-8"><h1 className="text-4xl font-black gold-text">بوابة التقديم</h1><p className="mt-3 leading-8 text-zinc-400">اختر نوع التقديم، املأ البيانات، ثم راجع الطلب قبل الإرسال.</p></div>{step === 'TYPE' && <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid gap-5 md:grid-cols-2"><button onClick={() => selectType('ADMIN')} className="gold-panel card-hover rounded-[2rem] p-8 text-right"><UserCheck className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-3xl font-black">التقديم على الإدارة</h2><p className="mt-3 leading-8 text-zinc-300">مسار خاص بالمتقدمين للعمل الإداري ومراجعة المخالفات وخدمة اللاعبين.</p></button><button onClick={() => selectType('FACTION_LEADER')} className="glass-panel card-hover rounded-[2rem] p-8 text-right"><Crown className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-3xl font-black">التقديم على قائد فصيل</h2><p className="mt-3 leading-8 text-zinc-300">مسار لقادة الشرطة أو الجيش أو التحالف الطبي.</p></button></motion.div>}
+  {step === 'FACTION' && <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}><button onClick={() => setStep('TYPE')} className="btn-dark mb-5"><ChevronRight className="h-4 w-4" /> رجوع</button><div className="grid gap-5 md:grid-cols-3">{factions.map(f => { const Icon = f.slug === 'medical' ? Stethoscope : f.slug === 'army' ? Shield : BadgeCheck; return <button key={f.slug} onClick={() => { setFactionSlug(f.slug); setStep('FORM'); }} className="glass-panel card-hover rounded-[2rem] p-7 text-right disabled:opacity-50" disabled={!f.is_open}><Icon className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-2xl font-black">{f.name_ar}</h2><p className="mt-3 min-h-20 leading-7 text-zinc-400">{f.description_ar}</p><div className="mt-4 text-sm font-bold text-onestateGoldSoft">{f.is_open ? 'مفتوح للتقديم' : 'مغلق حاليًا'}</div></button>; })}</div></motion.div>}
+  {step === 'FORM' && <div className="grid gap-6 lg:grid-cols-[280px_1fr]"><aside className="glass-panel h-fit rounded-[2rem] p-4"><button onClick={() => setStep(applicationType === 'FACTION_LEADER' ? 'FACTION' : 'TYPE')} className="btn-dark mb-4 w-full"><ChevronRight className="h-4 w-4" /> رجوع</button><div className="rounded-2xl border border-onestateGold/20 bg-onestateGold/10 p-4"><div className="text-sm text-zinc-400">المسار الحالي</div><div className="mt-1 font-black text-onestateGoldSoft">{APPLICATION_TYPE_LABELS[applicationType]}</div>{factionSlug && <div className="mt-2 text-sm text-zinc-300">الفصيل: {factions.find(f => f.slug === factionSlug)?.name_ar}</div>}</div><div className="mt-5 space-y-2">{sections.map((s, i) => <button key={s} onClick={() => setSectionIndex(i)} className={`w-full rounded-2xl px-4 py-3 text-right text-sm font-bold ${i === sectionIndex ? 'bg-onestateGold text-black' : 'bg-white/10 text-zinc-300'}`}>{i + 1}. {s}</button>)}</div></aside><section className="glass-panel rounded-[2rem] p-6"><div className="mb-6 flex items-center justify-between gap-4"><div><div className="text-sm text-zinc-400">المرحلة {sectionIndex + 1} من {sections.length}</div><h2 className="mt-1 text-3xl font-black">{activeSection}</h2></div><div className="h-2 w-44 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-gradient-to-l from-onestateGoldSoft to-onestateGold" style={{ width: `${((sectionIndex + 1) / Math.max(sections.length, 1)) * 100}%` }} /></div></div><div className="space-y-4">{activeQuestions.map(q => <RenderQuestion key={q.id} q={q} value={answers[q.question_key]} onChange={(value) => setAnswers(prev => ({ ...prev, [q.question_key]: value }))} />)}</div>{error && <div className="mt-5 rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-red-100">{error}</div>}<div className="mt-8 flex flex-col justify-between gap-3 sm:flex-row"><button className="btn-dark" disabled={sectionIndex === 0} onClick={() => setSectionIndex(i => Math.max(0, i - 1))}><ChevronRight className="h-4 w-4" /> السابق</button>{sectionIndex < sections.length - 1 ? <button className="btn-gold" disabled={!canGoNext()} onClick={() => setSectionIndex(i => Math.min(sections.length - 1, i + 1))}>التالي <ChevronLeft className="h-4 w-4" /></button> : <button className="btn-gold" disabled={loading || !canGoNext()} onClick={submit}>{loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Send className="h-5 w-5" /> إرسال الطلب</>}</button>}</div></section></div>}
+  {step === 'SUCCESS' && <section className="mx-auto max-w-2xl gold-panel rounded-[2rem] p-8 text-center"><ClipboardCheck className="mx-auto h-16 w-16 text-onestateGold" /><h2 className="mt-5 text-4xl font-black">تم إرسال الطلب</h2><p className="mt-4 leading-8 text-zinc-300">احتفظ برقم الطلب لمتابعة الحالة لاحقًا.</p><div className="mt-6 rounded-3xl border border-onestateGold/30 bg-black/40 p-5 text-3xl font-black text-onestateGoldSoft">{result?.applicationNo}</div><a href="/track" className="btn-gold mt-6">متابعة الطلب</a></section>}
+  </main><Footer /></>;
 }

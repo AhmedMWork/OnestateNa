@@ -1,26 +1,26 @@
-export type ApplicationType = 'ADMIN' | 'FACTION_LEADER' | 'FACTION_MEMBER';
-export type ApplicationStatus = 'NEW' | 'UNDER_REVIEW' | 'INTERVIEW' | 'ACCEPTED' | 'REJECTED' | 'WAITLIST' | 'NEEDS_RESUBMIT';
-export type QuestionInputType = 'TEXT' | 'TEXTAREA' | 'NUMBER' | 'SELECT' | 'MULTISELECT' | 'RADIO' | 'CHECKBOX' | 'CONSENT' | 'SCALE';
+export type ApplicationType = 'ADMIN' | 'FACTION_LEADER';
+export type ApplicationStatus = 'NEW' | 'UNDER_REVIEW' | 'INTERVIEW_REQUIRED' | 'PRE_ACCEPTED' | 'ACCEPTED' | 'REJECTED' | 'DEFERRED' | 'DUPLICATE' | 'BLOCKED';
+export type ReviewLabel = 'VERY_STRONG' | 'GOOD' | 'NEEDS_REVIEW' | 'UNCLEAR' | 'NOT_SUITABLE';
+export type Priority = 'HIGH' | 'MEDIUM' | 'LOW';
+export type QuestionInputType = 'TEXT' | 'TEXTAREA' | 'NUMBER' | 'SELECT' | 'RADIO' | 'MULTISELECT' | 'CHECKBOX' | 'CONSENT';
 
 export interface Faction {
   id: string;
   slug: string;
   name_ar: string;
-  description_ar?: string;
-  min_hours?: number;
+  description_ar: string | null;
+  icon_name: string | null;
+  requirements_ar: string | null;
   is_open: boolean;
+  is_visible: boolean;
   order_index: number;
 }
 
-export interface QuestionOption {
-  label: string;
-  value: string;
-  score?: number;
-}
+export interface QuestionOption { label: string; value: string; }
 
 export interface Question {
   id: string;
-  application_type: ApplicationType;
+  application_type: ApplicationType | 'ALL';
   faction_slug: string | null;
   section: string;
   question_key: string;
@@ -30,10 +30,8 @@ export interface Question {
   options: QuestionOption[];
   required: boolean;
   order_index: number;
-  weight: number;
-  correct_answer?: unknown;
-  rubric_keywords?: string[];
   is_active: boolean;
+  helper_image: string | null;
 }
 
 export interface RuleItem {
@@ -43,11 +41,12 @@ export interface RuleItem {
   title: string;
   body: string;
   penalty: string | null;
-  severity: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  faction_slug: string | null;
   tags: string[];
+  order_index: number;
+  is_active: boolean;
 }
-
-export interface PublicQuestion extends Omit<Question, 'correct_answer' | 'rubric_keywords'> {}
 
 export interface SubmitPayload {
   applicationType: ApplicationType;
@@ -56,4 +55,5 @@ export interface SubmitPayload {
   deviceHash?: string | null;
   screen?: string | null;
   timezone?: string | null;
+  website?: string;
 }

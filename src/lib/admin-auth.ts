@@ -1,63 +1,62 @@
-import { cookies } from 'next/headers';
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { hmac, safeEqual } from './crypto';
 
-const COOKIE_NAME = 'os_admin_session';
-const MAX_AGE_SECONDS = 60 * 60 * 12;
+const COOKIE_NAME = 'onestaterp_admin_session';
+const TTL_MS = 1000 * 60 * 60 * 12;
 
-type AdminSession = { role: 'admin'; iat: number; exp: number };
-
-function b64(data: string) {
-  return Buffer.from(data).toString('base64url');
-}
-function unb64(data: string) {
-  return Buffer.from(data, 'base64url').toString('utf8');
+function secret() {
+  const s = process.env.ADMIN_SESSION_SECRET;
+  if (!s || s.length < 32) return 'development-session-secret-change-this-value-now';
+  return s;
 }
 
-export function signSession(payload: AdminSession) {
-  const body = b64(JSON.stringify(payload));
-  const sig = hmac(body);
-  return `${body}.${sig}`;
+function sign(payload: string) {
+  return crypto.createHmac('sha256', secret()).update(payload).digest('hex');
 }
 
-export function verifySessionToken(token?: string | null): AdminSession | null {
-  if (!token || !token.includes('.')) return null;
-  const [body, sig] = token.split('.');
-  if (!body || !sig || !safeEqual(hmac(body), sig)) return null;
-  try {
-    const payload = JSON.parse(unb64(body)) as AdminSession;
-    if (payload.role !== 'admin') return null;
-    if (Date.now() > payload.exp) return null;
-    return payload;
-  } catch {
-    return null;
-  }
+export function verifyPassword(password: string) {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword || adminPassword === 'admin' || adminPassword.length < 8) return false;
+  const a = Buffer.from(password);
+  const b = Buffer.from(adminPassword);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
 }
 
-export function createSessionCookie() {
-  const now = Date.now();
-  const token = signSession({ role: 'admin', iat: now, exp: now + MAX_AGE_SECONDS * 1000 });
-  cookies().set(COOKIE_NAME, token, {
+export function createAdminResponse() {
+  const expires = Date.now() + TTL_MS;
+  const payload = `admin.${expires}`;
+  const token = `${payload}.${sign(payload)}`;
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
+    sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/',
-    maxAge: MAX_AGE_SECONDS
+    maxAge: Math.floor(TTL_MS / 1000),
+    path: '/'
   });
+  return res;
 }
 
-export function clearSessionCookie() {
-  cookies().set(COOKIE_NAME, '', { httpOnly: true, path: '/', maxAge: 0 });
+export function clearAdminResponse() {
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set(COOKIE_NAME, '', { httpOnly: true, path: '/', maxAge: 0 });
+  return res;
 }
 
-export function isAdminRequest(req?: NextRequest) {
-  const token = req ? req.cookies.get(COOKIE_NAME)?.value : cookies().get(COOKIE_NAME)?.value;
-  return Boolean(verifySessionToken(token));
+export function isAdmin(req: NextRequest) {
+  const token = req.cookies.get(COOKIE_NAME)?.value;
+  if (!token) return false;
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+  const payload = `${parts[0]}.${parts[1]}`;
+  const expected = sign(payload);
+  if (expected !== parts[2]) return false;
+  const expires = Number(parts[1]);
+  return Number.isFinite(expires) && expires > Date.now();
 }
 
 export function requireAdmin(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ ok: false, message: 'غير مصرح بالدخول' }, { status: 401 });
-  }
-  return null;
+  if (isAdmin(req)) return null;
+  return NextResponse.json({ ok: false, message: 'غير مصرح' }, { status: 401 });
 }

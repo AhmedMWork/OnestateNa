@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'OneState RP Recruitment Portal',
-  description: 'بوابة عربية للتقديم على الإدارة وقيادة الفصائل في OneState RP',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  title: 'Onestaterp Recruitment Portal',
+  description: 'بوابة عربية احترافية للتقديم على الإدارة وقادة الفصائل في OneState RP',
+  robots: { index: false, follow: false }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

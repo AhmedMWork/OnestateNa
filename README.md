@@ -1,69 +1,88 @@
-# OneState RP Recruitment Portal
+# Onestaterp Recruitment Portal V2 Enterprise
 
-منصة عربية كاملة للتقديم على إدارة OneState RP وقادة الفصائل، مع لوحة أدمن، تقييم تلقائي، كشف تكرار، وإدارة أسئلة وقوانين.
+منصة عربية احترافية للتقديم على الإدارة وقادة الفصائل في OneState RP، مبنية باستخدام:
 
-## المميزات المنفذة
+- Next.js 14 App Router
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Lucide Icons
+- Supabase PostgreSQL
+- Vercel Deployment
 
-- واجهة عربية RTL بالكامل بتصميم Gaming Dark / Gold / Silver.
-- شاشة تحميل أولية مشابهة لروح الموقع الأساسي.
-- صفحة رئيسية، صفحة تقديم، صفحة متابعة طلب، صفحة قوانين، ولوحة أدمن.
-- تقديم بدون تسجيل دخول للمستخدمين.
-- اختيار نوع التقديم: إدارة أو قائد فصيل.
-- عند اختيار قائد فصيل: تحديد الشرطة أو الجيش أو التحالف الطبي.
-- توضيح Client ID وDiscord بصورتين داخل نموذج التقديم.
-- بنك أسئلة ديناميكي من Supabase.
-- الأدمن يستطيع إضافة وتعديل وحذف الأسئلة.
-- الأدمن يستطيع مراجعة الطلبات، تغيير الحالة، إضافة ملاحظات وسبب القرار.
-- تقييم تلقائي للأسئلة المغلقة والمفتوحة باستخدام Rubric Keywords.
-- كشف تكرار باستخدام Client ID وDiscord واسم RP وIP Hash وبصمة الجهاز.
-- مكتبة قوانين قابلة للبحث مبنية من ملف القوانين المرفق.
-- تصدير الطلبات CSV.
-- حماية الأدمن بكلمة مرور فقط عبر Session Cookie موقعة.
+## أهم المميزات
+
+- واجهة عربية RTL فاخرة بمستوى Gaming/Cinematic.
+- Loading screen وanimations وicons حقيقية بدون emojis.
+- تقديم بدون تسجيل دخول.
+- اختيار التقديم على الإدارة أو قائد فصيل.
+- اختيار فصيل الشرطة أو الجيش أو التحالف الطبي.
+- صور توضيحية لـ Client ID وDiscord داخل النموذج.
+- حفظ مؤقت للنموذج أثناء الكتابة.
+- متابعة حالة الطلب برقم الطلب.
+- لوحة أدمن محمية بباسورد فقط.
+- إدارة كاملة للطلبات.
+- إدارة الأسئلة إضافة وتعديل وحذف وتفعيل وتعطيل.
+- إدارة القوانين إضافة وتعديل وحذف وتفعيل وتعطيل.
+- إدارة الفصائل وفتح/غلق التقديم.
+- إعدادات الموقع.
+- Blacklist.
+- Audit logs.
+- إلغاء نظام النقاط بالكامل واستبداله بمراجعة إدارية وFlags.
+- لا يوجد Discord webhook أو ربط خارجي.
 
 ## التشغيل المحلي
 
-1. انسخ الملف `.env.example` إلى `.env.local`.
-2. ضع بيانات Supabase:
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-3. ضع كلمة مرور قوية في `ADMIN_PASSWORD`.
-4. ضع سر طويل في `ADMIN_SESSION_SECRET`.
-5. افتح Supabase SQL Editor وشغل:
-   - `supabase/schema.sql`
-   - `supabase/seed.sql`
-6. ثبّت الحزم وشغّل المشروع:
-
 ```bash
-npm install
+npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-## النشر على Vercel
+افتح:
 
-1. ارفع المشروع على GitHub.
-2. اربطه بـ Vercel.
-3. أضف Environment Variables نفسها الموجودة في `.env.example`.
-4. شغّل ملفات SQL في Supabase قبل فتح الموقع.
-5. Deploy.
+```txt
+http://localhost:3000
+```
 
-## الصفحات
+لوحة الأدمن:
 
-- `/` الصفحة الرئيسية.
-- `/apply` التقديم.
-- `/rules` القوانين.
-- `/track` متابعة الطلب.
-- `/admin` لوحة الإدارة.
+```txt
+http://localhost:3000/admin
+```
 
-## ملاحظات أمنية مهمة
+## Environment Variables
 
-- لا تستخدم `SUPABASE_SERVICE_ROLE_KEY` في أي كود Client. المشروع الحالي يستخدمه فقط داخل Route Handlers على السيرفر.
-- غيّر `ADMIN_PASSWORD` و `ADMIN_SESSION_SECRET` قبل النشر.
-- لا تترك كلمة المرور الافتراضية.
-- يفضل إضافة Cloudflare Turnstile لاحقًا إذا زاد الـ Spam.
+```env
+SUPABASE_URL="https://trbfdyohmwtlpjxbgjmk.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="ضع المفتاح في Vercel فقط ولا ترفعه إلى GitHub"
+ADMIN_PASSWORD="باسورد قوي"
+ADMIN_SESSION_SECRET="سر طويل عشوائي 64 حرف أو أكثر"
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+```
 
-## الملفات المصدرية المرفقة
+## Supabase
 
-- `docs/onestate-rules-source.docx`
-- `docs/OneState_RP_Rules.xlsx`
+اتبع ملف:
 
-هذه الملفات محفوظة داخل المشروع كمرجع للإدارة ويمكن حذفها من النسخة العامة إذا رغبت الشركة.
+```txt
+supabase/README_SUPABASE.md
+```
+
+وشغل:
+
+1. `supabase/migrations/001_init_schema.sql`
+2. `supabase/migrations/002_indexes_and_rls.sql`
+3. `supabase/seed.sql`
+
+## Vercel
+
+- Framework: Next.js
+- Install Command: `npm ci`
+- Build Command: `npm run build`
+- Root Directory: جذر المشروع
+- أضف Environment Variables من لوحة Vercel
+
+## GitHub
+
+الملف جاهز للرفع مباشرة. لا ترفع `.env.local` أو أي secret key.

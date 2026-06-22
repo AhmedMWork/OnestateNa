@@ -1,34 +1,25 @@
-import crypto from 'node:crypto';
+import crypto from 'crypto';
 
-const secret = () => process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || 'dev-secret-change-me';
+const HASH_SECRET = process.env.ADMIN_SESSION_SECRET || 'development-only-secret-change-me';
 
-export function hmac(value: string) {
-  return crypto.createHmac('sha256', secret()).update(value).digest('hex');
-}
-
-export function hashPII(value: string | null | undefined) {
+export function hashValue(value?: string | null) {
   if (!value) return null;
-  return hmac(value.trim().toLowerCase()).slice(0, 64);
+  return crypto.createHmac('sha256', HASH_SECRET).update(String(value).trim().toLowerCase()).digest('hex');
 }
 
-export function safeEqual(a: string, b: string) {
-  const aa = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (aa.length !== bb.length) return false;
-  return crypto.timingSafeEqual(aa, bb);
+export function normalizeHandle(value?: string | null) {
+  return String(value || '').trim().toLowerCase().replace(/^@/, '');
 }
 
-export function randomCode(bytes = 8) {
-  return crypto.randomBytes(bytes).toString('hex').toUpperCase();
+export function makeApplicationNo() {
+  const year = new Date().getFullYear();
+  const random = crypto.randomBytes(3).toString('hex').toUpperCase();
+  return `OS-${year}-${random}`;
 }
 
-export function canonicalText(value: unknown) {
-  if (Array.isArray(value)) return value.map(String).join(', ').trim();
+export function safeText(value: unknown) {
   if (value === null || value === undefined) return '';
+  if (Array.isArray(value)) return value.join(', ');
   if (typeof value === 'object') return JSON.stringify(value);
-  return String(value).trim();
-}
-
-export function normalizeHandle(value: string) {
-  return value.trim().replace(/^@/, '').toLowerCase();
+  return String(value);
 }

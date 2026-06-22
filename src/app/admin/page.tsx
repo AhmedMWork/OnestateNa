@@ -1,2 +1,2 @@
 import { AdminPanel } from '@/components/admin/AdminPanel';
-export default function AdminPage() { return <AdminPanel />; }
+export default function Page() { return <AdminPanel />; }

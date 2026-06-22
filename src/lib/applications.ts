@@ -80,8 +80,23 @@ export async function detectDuplicates(core: ReturnType<typeof extractCoreFields
   return { flags, score: Math.min(100, score), risk };
 }
 
+
+export async function assertApplicationsAreOpen(type: string, factionSlug?: string | null) {
+  const supabase = getSupabaseAdmin();
+  const { data: settings } = await supabase.from('app_settings').select('*').limit(1).maybeSingle();
+  if (settings?.maintenance_mode) throw new Error('الموقع في وضع الصيانة الآن. حاول لاحقًا.');
+  if (settings && settings.applications_open === false) throw new Error('التقديم مغلق حاليًا.');
+  if (type === 'ADMIN' && settings?.admin_applications_open === false) throw new Error('التقديم على الإدارة مغلق حاليًا.');
+  if (type === 'FACTION_LEADER' && settings?.leader_applications_open === false) throw new Error('التقديم على قيادة الفصائل مغلق حاليًا.');
+  if (type === 'FACTION_LEADER' && factionSlug) {
+    const { data: faction } = await supabase.from('factions').select('is_open,name_ar').eq('slug', factionSlug).maybeSingle();
+    if (faction && faction.is_open === false) throw new Error(`التقديم على ${faction.name_ar} مغلق حاليًا.`);
+  }
+}
+
 export async function createApplication(payload: SubmitPayload, requestInfo: { ip?: string | null; userAgent?: string | null }) {
   const supabase = getSupabaseAdmin();
+  await assertApplicationsAreOpen(payload.applicationType, payload.factionSlug || null);
   const questions = await loadQuestionsFor(payload.applicationType, payload.factionSlug || null);
   if (!questions.length) throw new Error('لا توجد أسئلة نشطة لهذا النوع من التقديم');
 

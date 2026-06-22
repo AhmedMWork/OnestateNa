@@ -177,6 +177,9 @@ create table if not exists admin_login_attempts (
   user_agent text,
   created_at timestamptz default now()
 );
+create index if not exists idx_admin_login_attempts_ip_time on admin_login_attempts(ip_hash, created_at desc);
+create index if not exists idx_applications_ip_time on applications(ip_hash, submitted_at desc);
+create index if not exists idx_applications_device_time on applications(device_hash, submitted_at desc);
 
 -- No anonymous table access. The Next.js server uses the Service Role Key.
 alter table app_settings enable row level security;

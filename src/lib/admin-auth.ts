@@ -40,7 +40,7 @@ export function createSessionCookie() {
   cookies().set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/',
     maxAge: MAX_AGE_SECONDS
   });

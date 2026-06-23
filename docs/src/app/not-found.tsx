@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function NotFound(){return <main className="container-page flex min-h-screen items-center justify-center"><section className="glass-panel max-w-xl rounded-[2rem] p-8 text-center"><h1 className="text-4xl font-black gold-text">الصفحة غير متاحة</h1><p className="mt-4 text-zinc-400">هذا المسار غير موجود ضمن بوابة التقديم.</p><Link href="/" className="btn-gold mt-6">العودة للرئيسية</Link></section></main>}

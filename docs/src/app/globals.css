@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --gold: #d8a632;
+  --gold-soft: #ffd978;
+  --silver: #d7dde7;
+  --panel: rgba(16, 19, 29, .76);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  direction: rtl;
+  margin: 0;
+  background: #05060a;
+  color: #f8fafc;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(216,166,50,.24), transparent 28%),
+    radial-gradient(circle at 82% 10%, rgba(215,221,231,.14), transparent 26%),
+    radial-gradient(circle at 50% 105%, rgba(216,166,50,.10), transparent 36%),
+    linear-gradient(145deg, #030407, #080b12 44%, #0d0f17 70%, #020203);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0%, rgba(255,255,255,.035) 35%, transparent 52%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.70) 100%);
+  opacity: .95;
+}
+
+::selection { background: rgba(216,166,50,.38); color: white; }
+
+.container-page { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+.gold-text { @apply bg-gradient-to-l from-onestateGoldSoft via-onestateGold to-amber-700 bg-clip-text text-transparent; }
+.silver-text { @apply bg-gradient-to-l from-white via-onestateSilver to-zinc-500 bg-clip-text text-transparent; }
+.glass-panel { @apply border border-white/10 bg-onestatePanel/70 shadow-panel backdrop-blur-xl; }
+.gold-panel { @apply border border-onestateGold/25 bg-gradient-to-br from-onestateGold/10 to-white/[.03] shadow-gold backdrop-blur-xl; }
+.card-hover { @apply transition duration-300 hover:-translate-y-1 hover:border-onestateGold/50 hover:shadow-gold; }
+.btn-gold { @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-l from-onestateGoldSoft via-onestateGold to-amber-700 px-5 py-3 font-black text-black shadow-gold transition hover:-translate-y-0.5 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60; }
+.btn-dark { @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[.065] px-5 py-3 font-bold text-zinc-100 transition hover:border-onestateGold/45 hover:bg-white/[.11]; }
+.btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-red-400/25 bg-red-500/10 px-5 py-3 font-bold text-red-100 transition hover:bg-red-500/20; }
+.field { @apply w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-onestateGold/60 focus:ring-2 focus:ring-onestateGold/20; }
+.label { @apply mb-2 block text-sm font-bold text-zinc-300; }
+.hint { @apply text-xs leading-6 text-zinc-500; }
+.admin-card { @apply rounded-[1.65rem] border border-white/10 bg-onestatePanel/75 p-5 shadow-panel backdrop-blur-xl; }
+.admin-shell { @apply min-h-screen bg-radial-gold; }
+.badge { @apply inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-bold text-zinc-200; }
+.scrollbar-dark { scrollbar-width: thin; scrollbar-color: rgba(216,166,50,.55) rgba(255,255,255,.07); }
+.scrollbar-dark::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-dark::-webkit-scrollbar-track { background: rgba(255,255,255,.07); border-radius: 999px; }
+.scrollbar-dark::-webkit-scrollbar-thumb { background: rgba(216,166,50,.55); border-radius: 999px; }
+
+.animated-border { position: relative; overflow: hidden; }
+.animated-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(120deg, transparent 0%, rgba(216,166,50,.75) 28%, rgba(215,221,231,.72) 50%, transparent 78%);
+  transform: translateX(-70%);
+  animation: shimmer 4s linear infinite;
+  opacity: .35;
+}
+.animated-border > * { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+
+/* Enterprise application rebuild */
+.apply-aurora {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 620px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 24% 35%, rgba(216,166,50,.28), transparent 28%),
+    radial-gradient(circle at 72% 26%, rgba(124,154,190,.16), transparent 28%),
+    linear-gradient(100deg, transparent 0%, rgba(255,255,255,.055) 48%, transparent 58%);
+  filter: blur(2px);
+  opacity: .95;
+}
+.eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-onestateGold/25 bg-onestateGold/10 px-4 py-2 text-sm font-black text-onestateGoldSoft shadow-gold; }
+.status-strip { @apply grid gap-3 rounded-[2rem] border border-white/10 bg-black/35 p-4 shadow-panel backdrop-blur-xl sm:grid-cols-3; }
+.status-strip div { @apply rounded-2xl border border-white/10 bg-white/[.045] p-4; }
+.status-strip span { @apply block text-xs font-bold text-zinc-500; }
+.status-strip strong { @apply mt-2 block text-base font-black text-zinc-100; }
+.track-card { @apply relative overflow-hidden rounded-[2.4rem] border border-white/10 bg-gradient-to-br from-white/[.075] to-black/35 p-8 shadow-panel backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-onestateGold/45 hover:shadow-gold; }
+.track-card::before { content:''; position:absolute; inset:auto -20% -45% -20%; height:60%; background: radial-gradient(circle, rgba(216,166,50,.22), transparent 68%); transition:.3s; }
+.track-card:hover::before { transform: translateY(-12px); opacity: 1; }
+.track-card-gold { @apply border-onestateGold/30 bg-gradient-to-br from-onestateGold/15 to-black/35; }
+.track-icon { @apply flex h-20 w-20 items-center justify-center rounded-[1.6rem] border border-onestateGold/30 bg-black/35 text-onestateGold shadow-gold; }
+.faction-select-card { @apply relative overflow-hidden rounded-[2.4rem] border border-white/10 bg-black/35 p-7 shadow-panel backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-onestateGold/45 hover:shadow-gold; }
+.faction-select-card::before { content:''; position:absolute; inset:0; z-index:-1; opacity:.65; }
+.faction-police::before { background: radial-gradient(circle at 15% 8%, rgba(56,189,248,.24), transparent 38%), linear-gradient(145deg, rgba(9,22,38,.88), rgba(3,5,9,.8)); }
+.faction-army::before { background: radial-gradient(circle at 15% 8%, rgba(74,222,128,.22), transparent 38%), linear-gradient(145deg, rgba(18,32,21,.88), rgba(3,5,9,.8)); }
+.faction-medical::before { background: radial-gradient(circle at 15% 8%, rgba(248,113,113,.22), transparent 38%), linear-gradient(145deg, rgba(36,15,18,.88), rgba(3,5,9,.8)); }
+.emblem-police, .emblem-army, .emblem-medical { @apply flex items-center justify-center rounded-[1.45rem] border shadow-panel; }
+.emblem-police { @apply border-sky-300/30 bg-sky-400/10 text-sky-200; }
+.emblem-army { @apply border-emerald-300/30 bg-emerald-400/10 text-emerald-200; }
+.emblem-medical { @apply border-red-300/30 bg-red-400/10 text-red-200; }
+.form-sidebar { @apply h-fit rounded-[2rem] border border-white/10 bg-black/35 p-4 shadow-panel backdrop-blur-xl xl:sticky xl:top-24; }
+.form-stage { @apply rounded-[2.35rem] border border-white/10 bg-gradient-to-br from-white/[.065] to-black/30 p-5 shadow-panel backdrop-blur-xl md:p-7; }
+.step-tab { @apply grid w-full grid-cols-[34px_1fr_auto] items-center gap-3 rounded-2xl border border-white/10 bg-white/[.045] px-3 py-3 text-right transition hover:border-onestateGold/30 hover:bg-white/[.075]; }
+.step-tab span { @apply flex h-8 w-8 items-center justify-center rounded-xl bg-black/30 text-sm font-black text-zinc-300; }
+.step-tab strong { @apply text-sm font-black text-zinc-200; }
+.step-tab small { @apply rounded-full bg-black/30 px-2 py-1 text-xs text-zinc-500; }
+.step-tab.is-active { @apply border-onestateGold/35 bg-onestateGold/15; }
+.step-tab.is-active span { @apply bg-onestateGold text-black; }
+.step-tab.is-active strong { @apply text-onestateGoldSoft; }
+.question-card { @apply rounded-[1.75rem] border border-white/10 bg-black/30 p-5 shadow-[0_18px_60px_rgba(0,0,0,.22)] transition hover:border-onestateGold/25; }
+.option-tile { @apply flex items-center rounded-2xl border border-white/10 bg-white/[.04] p-4 text-sm font-bold text-zinc-200 transition hover:border-onestateGold/35 hover:bg-onestateGold/10; }
+.consent-tile { @apply flex w-full items-start gap-3 rounded-2xl border border-white/10 bg-white/[.045] p-4 text-right text-sm font-bold leading-7 text-zinc-200 transition hover:border-onestateGold/35; }
+.consent-tile.is-checked { @apply border-onestateGold/40 bg-onestateGold/10 text-onestateGoldSoft; }
+.consent-box { @apply mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-onestateGold/40 bg-black/35 text-onestateGold; }

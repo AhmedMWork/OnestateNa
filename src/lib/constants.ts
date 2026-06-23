@@ -43,7 +43,7 @@ export const PRIORITY_LABELS: Record<Priority, string> = {
   LOW: 'منخفضة'
 };
 
-export const FORM_SECTIONS = ['البيانات الأساسية', 'بيانات اللعبة', 'الخبرة والتفرغ', 'أسئلة القوانين', 'السيناريوهات العملية', 'الإقرارات'];
+export const FORM_SECTIONS = ['البيانات الأساسية', 'بيانات اللعبة', 'الخبرة والتفرغ', 'المواقف العملية', 'خطة العمل', 'الإقرارات'];
 
 export const FACTION_META: Record<string, { title: string; icon: string; accent: string }> = {
   police: { title: 'الشرطة', icon: 'Badge', accent: 'from-sky-400/20 to-white/[.04]' },

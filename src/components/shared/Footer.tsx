@@ -1,23 +1,17 @@
-import Link from 'next/link';
-import { Database, Lock, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-white/10 bg-black/40 py-10">
-      <div className="container-page grid gap-8 md:grid-cols-3">
-        <div>
-          <div className="flex items-center gap-2 text-xl font-black gold-text"><ShieldCheck className="h-6 w-6" /> Onestaterp Portal</div>
-          <p className="mt-3 leading-7 text-zinc-400">منصة عربية لإدارة طلبات الإدارة وقادة الفصائل بشكل منظم واحترافي.</p>
+    <footer className="mt-20 border-t border-white/10 bg-black/45 py-8">
+      <div className="container-page flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-right">
+        <div className="flex items-center gap-3">
+          <span className="relative h-12 w-12 overflow-hidden rounded-2xl border border-onestateGold/30 bg-black"><Image src="/images/onestate-logo-reference.jpg" alt="OneState" width={48} height={48} className="h-full w-full object-cover" /></span>
+          <div>
+            <div className="font-black gold-text">OneState NA Recruitment</div>
+            <div className="text-xs text-zinc-500">بوابة مخصصة لاستقبال ومراجعة طلبات التقديم</div>
+          </div>
         </div>
-        <div className="space-y-2 text-sm text-zinc-400">
-          <Link className="block hover:text-onestateGold" href="/privacy">سياسة الخصوصية</Link>
-          <Link className="block hover:text-onestateGold" href="/terms">شروط الاستخدام</Link>
-          <Link className="block hover:text-onestateGold" href="/faq">الأسئلة الشائعة</Link>
-        </div>
-        <div className="grid gap-3 text-sm text-zinc-400">
-          <div className="flex items-center gap-2"><Database className="h-4 w-4 text-onestateGold" /> Supabase-ready</div>
-          <div className="flex items-center gap-2"><Lock className="h-4 w-4 text-onestateGold" /> Admin password protected</div>
-        </div>
+        <p className="text-sm text-zinc-500">احتفظ برقم الطلب بعد الإرسال لمتابعة حالته لاحقًا.</p>
       </div>
     </footer>
   );

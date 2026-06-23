@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { BadgeCheck, ChevronLeft, ChevronRight, ClipboardCheck, Crown, FileText, ImageIcon, Loader2, Send, Shield, Stethoscope, UserCheck } from 'lucide-react';
+import { Badge, ChevronLeft, ChevronRight, ClipboardCheck, Crown, ImageIcon, Loader2, Send, Shield, Stethoscope, UserCheck } from 'lucide-react';
 import { Navbar } from '@/components/shared/Navbar';
 import { Footer } from '@/components/shared/Footer';
 import { APPLICATION_TYPE_LABELS, FORM_SECTIONS } from '@/lib/constants';
@@ -27,6 +28,7 @@ function RenderQuestion({ q, value, onChange }: { q: Question; value: any; onCha
 }
 
 export function ApplyFlow() {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>('TYPE');
   const [applicationType, setApplicationType] = useState<ApplicationType>('ADMIN');
   const [factionSlug, setFactionSlug] = useState<string | null>(null);
@@ -37,6 +39,20 @@ export function ApplyFlow() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
+
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'ADMIN') {
+      setApplicationType('ADMIN');
+      setFactionSlug(null);
+      setStep('FORM');
+    }
+    if (type === 'FACTION_LEADER') {
+      setApplicationType('FACTION_LEADER');
+      setStep('FACTION');
+    }
+  }, [searchParams]);
 
   useEffect(() => { fetch('/api/public/factions').then(r => r.json()).then(d => setFactions(d.factions || [])).catch(() => setFactions([])); }, []);
   useEffect(() => {
@@ -66,8 +82,8 @@ export function ApplyFlow() {
     localStorage.removeItem('onestaterp_apply_draft'); setResult(data); setStep('SUCCESS');
   }
 
-  return <><Navbar /><main className="container-page min-h-screen py-28"><div className="mb-8"><h1 className="text-4xl font-black gold-text">بوابة التقديم</h1><p className="mt-3 leading-8 text-zinc-400">اختر نوع التقديم، املأ البيانات، ثم راجع الطلب قبل الإرسال.</p></div>{step === 'TYPE' && <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid gap-5 md:grid-cols-2"><button onClick={() => selectType('ADMIN')} className="gold-panel card-hover rounded-[2rem] p-8 text-right"><UserCheck className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-3xl font-black">التقديم على الإدارة</h2><p className="mt-3 leading-8 text-zinc-300">مسار خاص بالمتقدمين للعمل الإداري ومراجعة المخالفات وخدمة اللاعبين.</p></button><button onClick={() => selectType('FACTION_LEADER')} className="glass-panel card-hover rounded-[2rem] p-8 text-right"><Crown className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-3xl font-black">التقديم على قائد فصيل</h2><p className="mt-3 leading-8 text-zinc-300">مسار لقادة الشرطة أو الجيش أو التحالف الطبي.</p></button></motion.div>}
-  {step === 'FACTION' && <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}><button onClick={() => setStep('TYPE')} className="btn-dark mb-5"><ChevronRight className="h-4 w-4" /> رجوع</button><div className="grid gap-5 md:grid-cols-3">{factions.map(f => { const Icon = f.slug === 'medical' ? Stethoscope : f.slug === 'army' ? Shield : BadgeCheck; return <button key={f.slug} onClick={() => { setFactionSlug(f.slug); setStep('FORM'); }} className="glass-panel card-hover rounded-[2rem] p-7 text-right disabled:opacity-50" disabled={!f.is_open}><Icon className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-2xl font-black">{f.name_ar}</h2><p className="mt-3 min-h-20 leading-7 text-zinc-400">{f.description_ar}</p><div className="mt-4 text-sm font-bold text-onestateGoldSoft">{f.is_open ? 'مفتوح للتقديم' : 'مغلق حاليًا'}</div></button>; })}</div></motion.div>}
+  return <><Navbar /><main className="container-page min-h-screen py-28"><div className="mb-8"><h1 className="text-4xl font-black gold-text">إرسال طلب جديد</h1><p className="mt-3 leading-8 text-zinc-400">اختر المسار المناسب ثم أكمل البيانات المطلوبة للمراجعة.</p></div>{step === 'TYPE' && <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid gap-5 md:grid-cols-2"><button onClick={() => selectType('ADMIN')} className="gold-panel card-hover rounded-[2rem] p-8 text-right"><UserCheck className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-3xl font-black">التقديم على الإدارة</h2><p className="mt-3 leading-8 text-zinc-300">مسار خاص بالانضمام للفريق الإداري ومتابعة التنظيم وخدمة اللاعبين.</p></button><button onClick={() => selectType('FACTION_LEADER')} className="glass-panel card-hover rounded-[2rem] p-8 text-right"><Crown className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-3xl font-black">التقديم على قائد فصيل</h2><p className="mt-3 leading-8 text-zinc-300">مسار لقادة الشرطة أو الجيش أو التحالف الطبي.</p></button></motion.div>}
+  {step === 'FACTION' && <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}><button onClick={() => setStep('TYPE')} className="btn-dark mb-5"><ChevronRight className="h-4 w-4" /> رجوع</button><div className="grid gap-5 md:grid-cols-3">{factions.map(f => { const Icon = f.slug === 'medical' ? Stethoscope : f.slug === 'army' ? Shield : Badge; return <button key={f.slug} onClick={() => { setFactionSlug(f.slug); setStep('FORM'); }} className="glass-panel card-hover rounded-[2rem] p-7 text-right disabled:opacity-50" disabled={!f.is_open}><Icon className="h-11 w-11 text-onestateGold" /><h2 className="mt-5 text-2xl font-black">{f.name_ar}</h2><p className="mt-3 min-h-20 leading-7 text-zinc-400">{f.description_ar}</p><div className="mt-4 text-sm font-bold text-onestateGoldSoft">{f.is_open ? 'اختيار هذا الفصيل' : 'مغلق حاليًا'}</div></button>; })}</div></motion.div>}
   {step === 'FORM' && <div className="grid gap-6 lg:grid-cols-[280px_1fr]"><aside className="glass-panel h-fit rounded-[2rem] p-4"><button onClick={() => setStep(applicationType === 'FACTION_LEADER' ? 'FACTION' : 'TYPE')} className="btn-dark mb-4 w-full"><ChevronRight className="h-4 w-4" /> رجوع</button><div className="rounded-2xl border border-onestateGold/20 bg-onestateGold/10 p-4"><div className="text-sm text-zinc-400">المسار الحالي</div><div className="mt-1 font-black text-onestateGoldSoft">{APPLICATION_TYPE_LABELS[applicationType]}</div>{factionSlug && <div className="mt-2 text-sm text-zinc-300">الفصيل: {factions.find(f => f.slug === factionSlug)?.name_ar}</div>}</div><div className="mt-5 space-y-2">{sections.map((s, i) => <button key={s} onClick={() => setSectionIndex(i)} className={`w-full rounded-2xl px-4 py-3 text-right text-sm font-bold ${i === sectionIndex ? 'bg-onestateGold text-black' : 'bg-white/10 text-zinc-300'}`}>{i + 1}. {s}</button>)}</div></aside><section className="glass-panel rounded-[2rem] p-6"><div className="mb-6 flex items-center justify-between gap-4"><div><div className="text-sm text-zinc-400">المرحلة {sectionIndex + 1} من {sections.length}</div><h2 className="mt-1 text-3xl font-black">{activeSection}</h2></div><div className="h-2 w-44 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-gradient-to-l from-onestateGoldSoft to-onestateGold" style={{ width: `${((sectionIndex + 1) / Math.max(sections.length, 1)) * 100}%` }} /></div></div><div className="space-y-4">{activeQuestions.map(q => <RenderQuestion key={q.id} q={q} value={answers[q.question_key]} onChange={(value) => setAnswers(prev => ({ ...prev, [q.question_key]: value }))} />)}</div>{error && <div className="mt-5 rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-red-100">{error}</div>}<div className="mt-8 flex flex-col justify-between gap-3 sm:flex-row"><button className="btn-dark" disabled={sectionIndex === 0} onClick={() => setSectionIndex(i => Math.max(0, i - 1))}><ChevronRight className="h-4 w-4" /> السابق</button>{sectionIndex < sections.length - 1 ? <button className="btn-gold" disabled={!canGoNext()} onClick={() => setSectionIndex(i => Math.min(sections.length - 1, i + 1))}>التالي <ChevronLeft className="h-4 w-4" /></button> : <button className="btn-gold" disabled={loading || !canGoNext()} onClick={submit}>{loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Send className="h-5 w-5" /> إرسال الطلب</>}</button>}</div></section></div>}
   {step === 'SUCCESS' && <section className="mx-auto max-w-2xl gold-panel rounded-[2rem] p-8 text-center"><ClipboardCheck className="mx-auto h-16 w-16 text-onestateGold" /><h2 className="mt-5 text-4xl font-black">تم إرسال الطلب</h2><p className="mt-4 leading-8 text-zinc-300">احتفظ برقم الطلب لمتابعة الحالة لاحقًا.</p><div className="mt-6 rounded-3xl border border-onestateGold/30 bg-black/40 p-5 text-3xl font-black text-onestateGoldSoft">{result?.applicationNo}</div><a href="/track" className="btn-gold mt-6">متابعة الطلب</a></section>}
   </main><Footer /></>;

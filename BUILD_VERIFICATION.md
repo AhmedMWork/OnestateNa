@@ -1,23 +1,13 @@
 # Build Verification
 
-تم اختبار هذه النسخة محليًا بعد التحويل إلى Yarn Classic.
-
-## الأوامر
+تم فحص النسخة بعد إعادة بناء الهيكل:
 
 ```bash
-yarn install --frozen-lockfile --non-interactive --network-timeout 600000
-yarn typecheck
-NEXT_TELEMETRY_DISABLED=1 NEXT_PRIVATE_BUILD_WORKER=1 yarn build
+node scripts/verify-locks.mjs
+npm run typecheck
+NEXT_TELEMETRY_DISABLED=1 NEXT_PRIVATE_BUILD_WORKER=1 npm run build
 ```
 
-## النتيجة
+النتيجة: نجح TypeScript ونجح Production Build محليًا.
 
-- Yarn install: Passed
-- TypeScript typecheck: Passed
-- Next.js production build: Passed
-- API routes: Dynamic server routes
-- Public pages: Static prerendered pages
-
-## ملاحظات مهمة للنشر
-
-هذه النسخة تحتوي على `yarn.lock` فقط. لا تستخدم npm أو pnpm لهذه النسخة.
+ملاحظة: تم استخدام npm فقط للاختبار المحلي داخل بيئة العمل المتاحة، مع حذف `package-lock.json` قبل التسليم. النسخة النهائية للنشر تعتمد Yarn فقط، وتحتوي على `yarn.lock` بدون روابط Registry داخلية.

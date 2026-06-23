@@ -1,43 +1,18 @@
-# Onestaterp Enterprise Stable — Implementation Report
+# Implementation Report — OneState NA Recruitment Portal
 
-تم تنفيذ نسخة Stable كاملة مبنية على Next.js + TypeScript + Supabase، مع اعتماد Yarn Classic بدل npm/pnpm لحل مشاكل Vercel install.
+تمت إعادة بناء الواجهة العامة لتكون بوابة تقديم فقط، بدون صفحات استعراض أو معلومات تقنية للمتقدم.
 
-## ما تم تثبيته في هذه النسخة
+## المنفذ
 
-- الرجوع إلى المشروع Full Stack بدل النسخة Static.
-- واجهة عربية RTL كاملة.
-- تصميم Dark / Gold / Silver.
-- Animations وLoading Screen وIcons حقيقية عبر lucide-react.
-- صفحات عامة: Home / Apply / Rules / Track / FAQ / Privacy / Terms.
-- لوحة أدمن كاملة: Dashboard / Applications / Questions / Rules / Settings / Blacklist / Audit.
-- حذف نظام النقاط الرقمي بالكامل.
-- لا يوجد Discord webhook أو أي ربط خارجي.
-- Supabase server-side فقط.
-- كل API routes ديناميكية وتعمل على Node.js runtime.
-- اعتماد Yarn 1.22.22 وyarn.lock.
-- حذف كل ملفات npm/pnpm lock.
-
-## ملفات النشر
-
-- package.json
-- yarn.lock
-- vercel.json
-- .yarnrc
-- .nvmrc
-- .node-version
-- .env.example
-- supabase/migrations
-- supabase/seed.sql
-- docs/VERCEL_STABLE_YARN_DEPLOY.md
-- docs/SUPABASE_SETUP.md
-- docs/ADMIN_GUIDE.md
-
-## نتيجة الاختبار
-
-نجحت أوامر:
-
-```bash
-yarn install --frozen-lockfile --non-interactive --network-timeout 600000
-yarn typecheck
-NEXT_TELEMETRY_DISABLED=1 NEXT_PRIVATE_BUILD_WORKER=1 yarn build
-```
+- حذف رابط القوانين العامة من الواجهة.
+- حذف أي ظهور لكلمات Vercel / Supabase / GitHub / Admin password في الواجهة العامة.
+- إظهار شعار OneState بوضوح.
+- استخدام الصور التوضيحية لـ Client ID وDiscord داخل النموذج.
+- تحويل صفحة البداية إلى مسارين فقط: الإدارة وقائد الفصيل.
+- جعل مسار الإدارة مخفيًا من الواجهة العامة على `/control`.
+- تحسين رسالة خطأ الأدمن: التفريق بين كلمة مرور خاطئة وبين إعدادات غير مضبوطة.
+- تعديل seed ليحتوي على أسئلة تقديم عملية بدل استعراض قوانين للمتقدم.
+- حذف صفحة القوانين العامة وAPI العام الخاص بها.
+- الحفاظ على إدارة القوانين داخل لوحة التحكم فقط.
+- الحفاظ على Next.js + Supabase وليس Static.
+- تثبيت Yarn public registry ومنع روابط registry داخلية.

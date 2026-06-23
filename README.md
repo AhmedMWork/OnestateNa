@@ -99,3 +99,10 @@ yarn build
 - `docs/onestate-rules-source.docx`
 - `public/images/client-id-guide.jpg`
 - `public/images/discord-guide.jpg`
+
+
+## إصلاح مهم لـ Vercel Registry
+
+هذه النسخة تحتوي على `yarn.lock` نظيف بروابط `https://registry.npmjs.org/` فقط.
+لا يجب أن يظهر في Vercel أي رابط داخلي غير registry العام.
+إذا ظهر، فهذا يعني أن الريبو لم يتم تحديثه بهذه النسخة أو أن Vercel يبني Commit قديم.

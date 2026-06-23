@@ -1,5 +1,25 @@
 {
   "framework": "nextjs",
-  "installCommand": "yarn install --frozen-lockfile --non-interactive",
-  "buildCommand": "yarn build"
+  "installCommand": "yarn install --frozen-lockfile --non-interactive --network-timeout 1200000 --registry https://registry.npmjs.org/",
+  "buildCommand": "NEXT_TELEMETRY_DISABLED=1 NEXT_PRIVATE_BUILD_WORKER=1 yarn build",
+  "headers": [
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
 }

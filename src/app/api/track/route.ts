@@ -1,8 +1,9 @@
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { normalizeHandle } from '@/lib/crypto';
-export const dynamic = 'force-dynamic';
 const schema = z.object({ applicationNo: z.string().min(4), verifier: z.string().min(2) });
 export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(await req.json());

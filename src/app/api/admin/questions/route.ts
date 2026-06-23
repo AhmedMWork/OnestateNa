@@ -1,7 +1,8 @@
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getSupabaseAdmin } from '@/lib/supabase';
-export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const blocked = requireAdmin(req); if (blocked) return blocked;
   const supabase = getSupabaseAdmin();

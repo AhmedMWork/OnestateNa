@@ -1,112 +1,101 @@
-# OneState RP Recruitment Portal
+# Onestaterp Enterprise Stable
 
-منصة عربية كاملة للتقديم على إدارة OneState RP وقادة الفصائل، مع لوحة أدمن، تقييم تلقائي، كشف تكرار، وإدارة أسئلة وقوانين.
+منصة عربية كاملة لتقديمات إدارة وفصائل OneState RP، مبنية بـ Next.js وSupabase، وجاهزة للنشر على GitHub + Vercel باستخدام Yarn Classic لتجنب مشاكل npm/pnpm التي ظهرت سابقًا في مرحلة install.
 
+## المزايا الأساسية
 
-## ثبات Build على Vercel
+- واجهة عربية RTL بتصميم Dark / Gold / Silver.
+- صفحات عامة: الرئيسية، التقديم، القوانين، متابعة الطلب، الأسئلة الشائعة، الخصوصية، الشروط.
+- Form Wizard للتقديم على الإدارة أو قائد فصيل.
+- اختيار فصائل: الشرطة، الجيش، التحالف الطبي.
+- صور توضيحية لـ Client ID وDiscord داخل نموذج التقديم.
+- لوحة أدمن كاملة محمية بباسورد فقط.
+- إدارة الطلبات والحالات والملاحظات والقرارات.
+- إدارة الأسئلة إضافة وتعديل وحذف وتفعيل وتعطيل.
+- إدارة القوانين إضافة وتعديل وحذف وتفعيل وتعطيل.
+- إدارة الفصائل وفتح/غلق التقديم لكل فصيل.
+- إعدادات الموقع العامة من لوحة الأدمن.
+- Blacklist حسب Client ID أو Discord أو RP Name أو IP Hash أو Device Hash.
+- Audit Logs لحركات الأدمن.
+- لا يوجد Discord Webhook أو أي ربط خارجي.
+- لا يوجد نظام نقاط رقمي؛ النظام يعتمد على مراجعة إدارية نوعية.
 
-تم حل مشكلتين منفصلتين:
+## لماذا Yarn؟
 
-1. خطأ npm `Exit handler never called` عبر التحويل إلى pnpm على Vercel.
-2. تعليق Next.js عند `Collecting page data` عبر ضبط `experimental.cpus = 1` وجعل API Routes ديناميكية.
-
-علامة نجاح النسخة الصحيحة في Vercel log:
-
-```txt
-Running "install" command: `corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm install --no-frozen-lockfile`
-```
-
-لو ظهر `npm install` مرة أخرى، فهذا يعني أن Vercel يستخدم إعداد Install Command قديم من Dashboard أو أن GitHub لم يستقبل هذه النسخة.
-
-
-## حل Vercel النهائي المعتمد
-
-هذه النسخة تستخدم pnpm بدل npm على Vercel لتجاوز خطأ npm: `Exit handler never called`.
-
-علامة أن النسخة الصحيحة تعمل: يجب أن يظهر في Vercel log أمر `pnpm install` وليس `npm install`.
-
-راجع: `docs/VERCEL_FINAL_PNPM_FIX.md`.
-
-
-## المميزات المنفذة
-
-- واجهة عربية RTL بالكامل بتصميم Gaming Dark / Gold / Silver.
-- شاشة تحميل أولية مشابهة لروح الموقع الأساسي.
-- صفحة رئيسية، صفحة تقديم، صفحة متابعة طلب، صفحة قوانين، ولوحة أدمن.
-- تقديم بدون تسجيل دخول للمستخدمين.
-- اختيار نوع التقديم: إدارة أو قائد فصيل.
-- عند اختيار قائد فصيل: تحديد الشرطة أو الجيش أو التحالف الطبي.
-- توضيح Client ID وDiscord بصورتين داخل نموذج التقديم.
-- بنك أسئلة ديناميكي من Supabase.
-- الأدمن يستطيع إضافة وتعديل وحذف الأسئلة.
-- الأدمن يستطيع مراجعة الطلبات، تغيير الحالة، إضافة ملاحظات وسبب القرار.
-- تقييم تلقائي للأسئلة المغلقة والمفتوحة باستخدام Rubric Keywords.
-- كشف تكرار باستخدام Client ID وDiscord واسم RP وIP Hash وبصمة الجهاز.
-- مكتبة قوانين قابلة للبحث مبنية من ملف القوانين المرفق.
-- تصدير الطلبات CSV.
-- حماية الأدمن بكلمة مرور فقط عبر Session Cookie موقعة.
+تم اعتماد Yarn Classic 1.22.22 لأن مشاكل Vercel السابقة حدثت قبل مرحلة Build أثناء npm/pnpm install. هذه النسخة تحتوي على `yarn.lock` فقط، ولا تحتوي على `package-lock.json` أو `pnpm-lock.yaml`.
 
 ## التشغيل المحلي
 
-1. انسخ الملف `.env.example` إلى `.env.local`.
-2. ضع بيانات Supabase:
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-3. ضع كلمة مرور قوية في `ADMIN_PASSWORD`.
-4. ضع سر طويل في `ADMIN_SESSION_SECRET`.
-5. افتح Supabase SQL Editor وشغل:
-   - `supabase/schema.sql`
-   - `supabase/seed.sql`
-6. ثبّت الحزم وشغّل المشروع:
-
 ```bash
-npm install
-npm run dev
+yarn install --frozen-lockfile --non-interactive
+yarn dev
 ```
 
-## النشر على Vercel
+## اختبار الإنتاج محليًا
 
-1. ارفع المشروع على GitHub.
-2. اربطه بـ Vercel.
-3. أضف Environment Variables نفسها الموجودة في `.env.example`.
-4. شغّل ملفات SQL في Supabase قبل فتح الموقع.
-5. Deploy.
+```bash
+yarn typecheck
+NEXT_TELEMETRY_DISABLED=1 NEXT_PRIVATE_BUILD_WORKER=1 yarn build
+```
 
-## الصفحات
+## متغيرات البيئة
 
-- `/` الصفحة الرئيسية.
-- `/apply` التقديم.
-- `/rules` القوانين.
-- `/track` متابعة الطلب.
-- `/admin` لوحة الإدارة.
+انسخ `.env.example` إلى `.env.local` محليًا، وأضف نفس القيم في Vercel Environment Variables.
 
-## ملاحظات أمنية مهمة
+```env
+SUPABASE_URL=https://trbfdyohmwtlpjxbgjmk.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=ضع_المفتاح_السري_الجديد_هنا
+ADMIN_PASSWORD=ضع_باسورد_قوي
+ADMIN_SESSION_SECRET=ضع_سر_طويل_64_حرف_أو_أكثر
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-- لا تستخدم `SUPABASE_SERVICE_ROLE_KEY` في أي كود Client. المشروع الحالي يستخدمه فقط داخل Route Handlers على السيرفر.
-- غيّر `ADMIN_PASSWORD` و `ADMIN_SESSION_SECRET` قبل النشر.
-- لا تترك كلمة المرور الافتراضية.
-- يفضل إضافة Cloudflare Turnstile لاحقًا إذا زاد الـ Spam.
+لا ترفع `.env.local` إلى GitHub.
 
-## الملفات المصدرية المرفقة
+## إعداد Supabase
 
-- `docs/onestate-rules-source.docx`
-- `docs/OneState_RP_Rules.xlsx`
+افتح Supabase SQL Editor وشغل بالترتيب:
 
-هذه الملفات محفوظة داخل المشروع كمرجع للإدارة ويمكن حذفها من النسخة العامة إذا رغبت الشركة.
+1. `supabase/migrations/001_init_schema.sql`
+2. `supabase/migrations/002_indexes_and_rls.sql`
+3. `supabase/seed.sql`
 
+## إعداد Vercel النهائي
 
-## Vercel Final Fix
+في Vercel:
 
-هذه النسخة لا تستخدم `npm ci` ولا تحتوي على `package-lock.json` لتجنب خطأ npm على Vercel.
-
-إعدادات Vercel المطلوبة:
-
+- Framework Preset: `Next.js`
 - Root Directory: `.`
-- Framework: Next.js
-- Install Command: من `vercel.json`
-- Build Command: من `vercel.json`
-- Node.js Version: استخدم إعدادات Vercel Project Settings، ولا يوجد `engines` داخل `package.json`.
+- Node.js Version: `20.x` أو اتركه على إعداد المشروع، مع تفضيل 20.x.
+- Install Command: اتركه فارغًا ليقرأ من `vercel.json` أو اجعله:
 
-لو رفعت المشروع داخل مجلد اسمه `Onestaterp` داخل GitHub، اجعل Root Directory في Vercel = `Onestaterp`. الأفضل أن يكون `package.json` في جذر الريبو مباشرة.
+```bash
+yarn install --frozen-lockfile --non-interactive
+```
 
-راجع: `docs/VERCEL_FINAL_FIX.md`.
+- Build Command: اتركه فارغًا ليقرأ من `vercel.json` أو اجعله:
+
+```bash
+yarn build
+```
+
+ثم استخدم: `Redeploy without Build Cache`.
+
+## مهم جدًا
+
+لو ظهر في Vercel أي أمر `npm install` أو `pnpm install`، فهذا يعني أن إعدادات Vercel القديمة ما زالت مفروضة من Dashboard أو أن الريبو لا يحتوي على النسخة الجديدة. امسح Install Command يدويًا أو اجعله Yarn كما في الأعلى.
+
+## مسارات مهمة
+
+- الموقع: `/`
+- التقديم: `/apply`
+- القوانين: `/rules`
+- متابعة الطلب: `/track`
+- الأدمن: `/admin`
+
+## مصادر المشروع
+
+- `docs/OneState_RP_Rules.xlsx`
+- `docs/onestate-rules-source.docx`
+- `public/images/client-id-guide.jpg`
+- `public/images/discord-guide.jpg`

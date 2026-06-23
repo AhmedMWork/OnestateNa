@@ -1,9 +1,9 @@
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createApplication } from '@/lib/applications';
 import { getClientIp, tooManyApplicationSubmissions } from '@/lib/request-guards';
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
 const schema = z.object({ applicationType: z.enum(['ADMIN','FACTION_LEADER']), factionSlug: z.string().nullable().optional(), answers: z.record(z.unknown()), deviceHash: z.string().nullable().optional(), screen: z.string().nullable().optional(), timezone: z.string().nullable().optional(), website: z.string().max(0).optional() });
 export async function POST(req: NextRequest) {
   try {
